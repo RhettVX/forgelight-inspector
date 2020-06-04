@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import List, Union, Dict, Tuple
+import re
 
 from DbgPack.asset_manager import AssetManager, AbstractAsset
 from DbgPack.hash import crc64
@@ -7,6 +8,12 @@ from DbgPack.hash import crc64
 beta_path = Path(r'D:\WindowsUsers\Rhett\Desktop\Planetside 2 Beta')
 test_path = Path(r'A:\Games\PlanetSide 2 Test')
 live_path = Path(r'A:\Games\PlanetSide 2')
+
+# known_exts = (
+#     'adr agr ags apb apx bat bin cdt cnk0 cnk1 cnk2 cnk3 cnk4 cnk5 crc crt cso cur dat db dds def dir dll '
+#     'dma dme dmv dsk dx11efb dx11rsb dx11ssb eco efb exe fsb fxd fxo gfx gnf i64 ini jpg lst lua mrn pak '
+#     'pem playerstudio png prsb psd pssb tga thm tome ttf txt vnfo wav xlsx xml xrsb xssb zone').split()
+# filename_pattern = compile(bytes(r'([><\w-]+\.(' + r'|'.join(known_exts) + r'))', 'utf-8'))
 
 
 class ForgeLightGame:
@@ -70,25 +77,45 @@ class ForgeLightGame:
         #         else:
         #             (outdir / f'{name:#018x}.bin').write_bytes(a.get_data())
 
-    # def trace_requirements(self, asset_names: List[str]):
+    # TODO: Testing with zones first
+    # TODO: only take one name for now
+    # FIXME: This whole thing is sloppy
+    def trace_requisites(self, asset_names: List[str], mode='zone'):
+        completed_files: List[AbstractAsset] = []
+        file_queue: List[str] = []
+
+        zone_reqs = 'adr'.split()
+        adr_reqs = 'dme dma dds'
+
+        # compile(bytes(r'([><\w-]+\.(' + r'|'.join(known_exts) + r'))', 'utf-8'))
+
+        for i, name in enumerate(asset_names):
+            if mode == 'zone':
+                # Initial scrape
+                data = self.get_assets([name])[0][1].get_data()
+                mo = re.findall(bytes(r'([><\w-]+\.(' + r'|'.join(zone_reqs) + r'))', 'utf-8'), data)
+
+                if mo:
+                    for m in mo:
+                        print(m[0])
 
 
-    # def load_items(self):
-    #     citems = self.asset_manager['ClientItemDefinitions.txt']
-    #     print(citems)
-    #
-    #     outdir = Path('./output')
-    #
-    #     outdir.mkdir(exist_ok=True)
-    #
-    #     (outdir / 'ClientItemDefinitions.txt').write_bytes(citems.get_data())
-    #
-    #     pass
+# def load_items(self):
+#     citems = self.asset_manager['ClientItemDefinitions.txt']
+#     print(citems)
+#
+#     outdir = Path('./output')
+#
+#     outdir.mkdir(exist_ok=True)
+#
+#     (outdir / 'ClientItemDefinitions.txt').write_bytes(citems.get_data())
+#
+#     pass
 
 
 if __name__ == '__main__':
     to_extract = [
-        'ClientItemDefinitions.txt'
+        # 'ClientItemDefinitions.txt'
     ]
 
     print('Loading game files...')
@@ -98,11 +125,15 @@ if __name__ == '__main__':
     # ps2_live = ForgeLightGame('PS2_Live', live_path)
     # ps2_beta = ForgeLightGame('PS2_Beta', beta_path)
 
-    print('Extracting specified assets...')
-    ps2_test.extract_assets(to_extract)
+    # print('Extracting specified assets...')
+    # ps2_test.extract_assets(to_extract)
     # ps2_testold.extract_assets(to_extract)
     # ps2_live.extract_assets(to_extract)
     # ps2_beta.extract_assets(to_extract)
+
+    print('Tracing requisites...')
+    # Nexus makes a good example because it is smaller and has some missing materials that I should be able to trace
+    ps2_test.trace_requisites(['Nexus.zone'])
 
     print('Finished')
     pass
