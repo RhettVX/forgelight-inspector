@@ -9,12 +9,8 @@ from jenkins_hash.jenkins import lookup2
 
 from DbgPack.asset_manager import AssetManager, AbstractAsset
 
-test_path = Path(r'C:\A\Games\PlanetSide 2 Test')
-oldtest_path = Path(r'D:\WindowsUsers\Rhett\Desktop\forgelight-toolbox\Backups\06-25-21-TEST')
 live_path = Path(r'C:\A\Games\PlanetSide 2')
-admin_path = Path(r'D:\WindowsUsers\Rhett\Desktop\PlanetSide 2 Admin')
-beta_path = Path(r'D:\WindowsUsers\Rhett\Desktop\PlanetSide 2 Beta')
-js_path = Path(r'D:\WindowsUsers\Rhett\Desktop\H1Z1 - Just Survive')
+test_path = Path(r'C:\A\Games\PlanetSide 2 Test')
 
 class ForgeLightGame:
     assets_subpath = r'Resources\Assets'
@@ -73,7 +69,7 @@ class ForgeLightGame:
         # print(firemode_display_keys)
 
         # for i in ([6009864,] + list(range(6009891, 6009910+1)) + [6010045, 6010046, 6010047, 6010510, 6010511, 6010512]):
-        for i in  [6009515, 6009516, 6009517, 6009518, 6009524, 6009572, 6009583, 6009595, 6009600, 6009604, 6009605, 6009623, 6009652, 6009656, 6009672, 6009722, 6009723, 6009753, 6009782, 6009835, 6009854, 6009856, 6009860, 6009861, 6009864, 6009866, 6009891, 6009892, 6009893, 6009894, 6009895, 6009896, 6009897, 6009898, 6009899, 6009900, 6009901, 6009902, 6009903, 6009904, 6009905, 6009906, 6009907, 6009908, 6009909, 6009910, 6009927, 6009928, 6009957, 6009971, 6009972, 6009973, 6009974, 6009991, 6009992, 6009995, 6010044, 6010045, 6010046, 6010047, 6010049, 6010076, 6010078, 6010115, 6010117, 6010510, 6010511, 6010512, 6010678, 6010679, 6010715, 6010716, 6010717, 6011053, 6011064, 6011140, 6011151, 6011152, 6011153, 6011154, 6011155, 6011234, 6011251, 6011252, 6011253, 6011254, 6011255, 6011256, 6011257, 6011258]:
+        for i in [6011430,]:
 
             # go to id in item defs
             item_definition = {}
@@ -83,22 +79,22 @@ class ForgeLightGame:
                     item_definition = dict(zip(item_definition_keys, entry))
                     break
 
-            # go to id in datasheet
-            item_datasheet = {}
-            for entry in item_datasheet_data[1:]:
-                if int(entry[0]) == i:
-                    # read datasheet entry
-                    item_datasheet = dict(zip(item_datasheet_keys, entry))
-                    break
+            # # go to id in datasheet
+            # item_datasheet = {}
+            # for entry in item_datasheet_data[1:]:
+            #     if int(entry[0]) == i:
+            #         # read datasheet entry
+            #         item_datasheet = dict(zip(item_datasheet_keys, entry))
+            #         break
 
-            # go to id in datasheet
-            firemode_display = {}
-            for entry in firemode_display_data[1:]:
-                if int(entry[0]) == 0:
-                # if int(entry[0]) == int(item_datasheet['WEAPON_ID']):
-                    # read datasheet entry
-                    firemode_display = dict(zip(firemode_display_keys, entry))
-                    break
+            # # go to id in datasheet
+            # firemode_display = {}
+            # for entry in firemode_display_data[1:]:
+            #     if int(entry[0]) == 0:
+            #     # if int(entry[0]) == int(item_datasheet['WEAPON_ID']):
+            #         # read datasheet entry
+            #         firemode_display = dict(zip(firemode_display_keys, entry))
+            #         break
 
             locale_info = [x.split('\t') for x in (self.path / self.locale_subpath / 'en_us_data.dir').read_text().split('\n')[:-1] if x[0] != '#']
 
@@ -136,7 +132,7 @@ class ForgeLightGame:
 
             # print(name);
             # HACK(rhett): just clear the file
-            with open('nso_weapons.txt', 'a') as out_file:
+            with open('stuffIpulledout.txt', 'a') as out_file:
 
                 # pprint(item_definition)
                 # pprint(item_datasheet)
@@ -179,7 +175,7 @@ class ForgeLightGame:
             print('Exporting')
             for a in completed_files.values():
                 # print(f'{a.name}')
-                outdir = Path('traced_reqs')
+                outdir = Path('traced_reqs') / Path(root_name).stem
                 outdir.mkdir(exist_ok=True, parents=True)
                 (outdir / a.name).write_bytes(a.get_data())
 
@@ -229,7 +225,7 @@ class ForgeLightGame:
 
 
 a_names = """
-          """.split()
+          """.strip('\n').split()
 
 if __name__ == '__main__':
     to_extract = [
@@ -239,21 +235,21 @@ if __name__ == '__main__':
     print('Loading game files...')
     ps2_live = ForgeLightGame('PS2_Live', live_path)
     # ps2_test = ForgeLightGame('PS2_Test', test_path)
-    # old_live = ForgeLightGame('PS2_Live_Old', Path(r'D:\WindowsUsers\Rhett\Desktop\forgelight-toolbox\Backups\05-20-21-LIVE'))
-    # test_next = ForgeLightGame('PS2_Test_Next', Path(r'D:\WindowsPrograms\Steam\steamapps\common\PlanetSide 2 - Test'))
 
-    print('Merging weapon data...')
+    # print('Merging weapon data...')
+    # ps2_live.combine_weapon_info()
     # ps2_test.combine_weapon_info()
-    ps2_live.combine_weapon_info()
 
-    # print('Extracting specified assets...')
-    # ps2_live.extract_assets(to_extract)
+    print('Extracting specified assets...')
+    ps2_live.extract_assets(to_extract)
     # ps2_test.extract_assets(to_extract)
-    # old_live.extract_assets(to_extract)
-    # test_next.extract_assets(to_extract)
 
     # print('Tracing requisites...')
+    # backup_game.trace_requisites('Hossin.zone')
     # psa_final.trace_requisites('Sanctuary.zone')
+    # for asset_name in to_extract:
+    #     if asset_name.endswith('dma'):
+    #         ps2_live.trace_requisites(asset_name, 'dma')
     # Nexus makes a good example because it is smaller and has some missing materials that I should be able to trace
 
     print('Finished')
